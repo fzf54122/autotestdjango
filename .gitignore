@@ -145,6 +145,9 @@ Untitled*
 demo.py
 main.py
 
+# idea
+.idea
+
 # media file
 media/history.json
 media/reports/*.html

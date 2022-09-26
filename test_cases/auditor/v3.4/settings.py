@@ -1,5 +1,4 @@
 
-host = '10.30.5.131'
 supported_protocols = [
     "ADS/AMS",
     "BACnet",

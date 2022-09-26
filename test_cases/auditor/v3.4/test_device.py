@@ -1,9 +1,8 @@
 import time
 from unittest import TestCase
-from unittestreport import ddt, list_data, json_data, yaml_data
+from utils.core.test_core import ddt, list_data, json_data, yaml_data
 from utils.core.session import *
 from utils.core.assertion import JsonPathExtractStrategy
-from settings import host
 import shortuuid
 from utils.core.decorators import depends_on
 from datetime import date, datetime, timedelta
@@ -15,13 +14,14 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.00000+08:00"
 
 class TestDevice(TestCase):
     session = None
+    host = ''
 
     @classmethod
     def setUpClass(cls) -> None:
         user = User(username='test666', password='Bl666666')
         cls.session = AuditorSession()
         cls.session.token_cipher = CipherFactory.create_cipher('auditor/token')
-        cls.session.host = host
+        cls.session.host = cls.host
         cls.session.login(user)
         cls.strategy = JsonPathExtractStrategy()
         cls.rule_name = shortuuid.ShortUUID().random(length=15)
@@ -33,7 +33,7 @@ class TestDevice(TestCase):
             'search': None,
             'page_size': 20
         }
-        response = self.session.request('GET', url=f'https://{host}/v2/device/', params=data)
+        response = self.session.request('GET', url=f'/v2/device/', params=data)
         return response
 
     def test_get_list(self):
@@ -52,7 +52,7 @@ class TestDevice(TestCase):
             "description": ""
         }
 
-        response = self.session.request('POST', url=f'https://{host}/v2/device/', json=data)
+        response = self.session.request('POST', url=f'/v2/device/', json=data)
         message = self.strategy.extract(response, '$.id')
         if len(message) == 0:
             message = self.strategy.extract(response, '$.error')
@@ -67,13 +67,13 @@ class TestDevice(TestCase):
             'search': self.rule_name,
             'page_size': 100
         }
-        response = self.session.request('GET', url=f'https://{host}/v2/device/', params=search_data)
+        response = self.session.request('GET', url=f'/v2/device/', params=search_data)
         rule_id = self.strategy.extract(response, '$.results.[0].id')[0]
-        response = self.session.request('DELETE', url=f'https://{host}/v2/device/{rule_id}/')
+        response = self.session.request('DELETE', url=f'/v2/device/{rule_id}/')
         self.assertEqual(response.status_code, 204)
 
     def check_learning_status(self):
-        response = self.session.request('GET',  url=f'https://{host}/v2/device/learned/is_learning/')
+        response = self.session.request('GET',  url=f'/v2/device/learned/is_learning/')
         status = self.strategy.extract(response, '$.status')
         if len(status) == 0:
             raise ValueError('响应内容异常，未提取到status字段')
@@ -86,20 +86,20 @@ class TestDevice(TestCase):
             "ip_range": None,
             'include_ipv6': 'false'
         }
-        response = self.session.request('POST', url=f'https://{host}/v2/device/study/start/', json=start_params)
+        response = self.session.request('POST', url=f'/v2/device/study/start/', json=start_params)
         self.assertEqual(response.status_code, 200)
 
         while self.check_learning_status() != 0:
             time.sleep(1)
         else:
-            response = self.session.request('POST', url=f'https://{host}/v2/device/learned/')
+            response = self.session.request('POST', url=f'/v2/device/learned/')
             self.assertEqual(response.status_code, 200)
 
     def test_enable_all(self):
         enable_params = {
             'ip_mac_bond': 'true'
         }
-        response = self.session.request('PUT', url=f'https://{host}/v2/device/', json=enable_params)
+        response = self.session.request('PUT', url=f'/v2/device/', json=enable_params)
         self.assertEqual(response.status_code, 200)
 
     @depends_on('test_enable_all')
@@ -107,7 +107,7 @@ class TestDevice(TestCase):
         disable_params = {
             'ip_mac_bond': 'false'
         }
-        response = self.session.request('PUT', url=f'https://{host}/v2/device/', json=disable_params)
+        response = self.session.request('PUT', url=f'/v2/device/', json=disable_params)
         self.assertEqual(response.status_code, 200)
 
 

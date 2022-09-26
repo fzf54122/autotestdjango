@@ -1,10 +1,9 @@
 import random
 import time
 from unittest import TestCase
-from unittestreport import ddt, list_data, json_data, yaml_data
+from utils.core.test_core import ddt, list_data, json_data, yaml_data
 from utils.core.session import *
 from utils.core.assertion import JsonPathExtractStrategy
-from settings import host
 import shortuuid
 from utils.core.decorators import depends_on
 from datetime import date, datetime, timedelta
@@ -17,23 +16,24 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.00000+08:00"
 
 class TestSystemSettings(TestCase):
     session = None
+    host = ''
 
     @classmethod
     def setUpClass(cls) -> None:
         user = User(username='test666', password='Bl666666')
         cls.session = AuditorSession()
         cls.session.token_cipher = CipherFactory.create_cipher('auditor/token')
-        cls.session.host = host
+        cls.session.host = cls.host
         cls.session.login(user)
         cls.strategy = JsonPathExtractStrategy()
         cls.cache: dict = {}
 
     def get_network_state(self):
-        response = self.session.request('GET', url=f'https://{host}/v2/setting/flow-if/')
+        response = self.session.request('GET', url=f'/v2/setting/flow-if/')
         return response
 
     def test_get_network_state(self):
-        response = self.session.request('GET', url=f'https://{host}/v2/setting/ip/')
+        response = self.session.request('GET', url=f'/v2/setting/ip/')
         self.assertEqual(response.status_code, 200)
         response = self.get_network_state()
         self.assertEqual(response.status_code, 200)
@@ -48,7 +48,7 @@ class TestSystemSettings(TestCase):
             "if_setting": nic_infos
         }
         print(payload)
-        response = self.session.request('PUT', url=f'https://{host}/v2/setting/flow-if/', json=payload)
+        response = self.session.request('PUT', url=f'/v2/setting/flow-if/', json=payload)
         self.assertEqual(response.status_code, 200)
 
     def test_syslog_settings(self):
@@ -58,7 +58,7 @@ class TestSystemSettings(TestCase):
             "valid": 'true',
             "protocol": "UDP"
         }
-        response = self.session.request('PATCH', url=f'https://{host}/v2/setting/syslog/', json=payload)
+        response = self.session.request('PATCH', url=f'/v2/setting/syslog/', json=payload)
         self.assertEqual(response.status_code, 200)
 
     def test_proto_set(self):
@@ -111,25 +111,25 @@ class TestSystemSettings(TestCase):
             "mac_enabled": None,
             "port_enabled": None
         }
-        response = self.session.request('PATCH', url=f'https://{host}/v2/packet/proto-set/', json=payload)
+        response = self.session.request('PATCH', url=f'/v2/packet/proto-set/', json=payload)
         self.assertEqual(response.status_code, 200)
 
     def test_snmp(self):
         payload = {
             "active": 'true'
         }
-        response = self.session.request('PUT', url=f'https://{host}/v2/setting/proxy/', json=payload)
+        response = self.session.request('PUT', url=f'/v2/setting/proxy/', json=payload)
         self.assertEqual(response.status_code, 200)
         payload = {
             "versions": [1, 2, 3],
             "trap": "10.30.3.223",
             "group": "public"
         }
-        response = self.session.request('PUT', url=f'https://{host}/v2/setting/config/', json=payload)
+        response = self.session.request('PUT', url=f'/v2/setting/config/', json=payload)
         self.assertEqual(response.status_code, 200)
 
     def test_product_info(self):
-        response = self.session.request('GET', url=f'https://{host}/v2/setting/product-info/')
+        response = self.session.request('GET', url=f'/v2/setting/product-info/')
         self.assertEqual(response.status_code, 200)
 
 
