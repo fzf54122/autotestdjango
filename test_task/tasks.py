@@ -29,14 +29,13 @@ def start_test(test_task_id: int, case_path: str):
     )
     # 3、运行测试用例
     try:
+        test_task.status = 2
+        test_task.save()
         runner.run()
+        return runner
     except Exception as e:
         test_task.status = 4
         test_task.save()
         raise e
-    else:
-        test_task.status = 3
-        test_task.result = runner.result
-        test_task.save()
 
 

@@ -159,7 +159,9 @@ class TestTask(models.Model):
     version = models.CharField(max_length=50, verbose_name='产品版本')
     uuid = models.UUIDField(verbose_name='用于任务标识的uuid', null=True)
     status = models.IntegerField(choices=STATE_CHOICES, verbose_name='任务状态', default=1)
-    result = models.JSONField(max_length=10, verbose_name='任务结果', null=True)
+    result = models.JSONField(verbose_name='任务结果', null=True)
+    task_scheduler = models.JSONField(verbose_name='任务scheduler', null=True)
+    created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = '测试任务'

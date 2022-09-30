@@ -151,3 +151,7 @@ main.py
 # media file
 media/history.json
 media/reports/*.html
+
+# migrations
+migrations
+migrations/*

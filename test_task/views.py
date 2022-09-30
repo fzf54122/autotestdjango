@@ -25,8 +25,9 @@ class TestTaskView(APIView, CeleryTaskMixin):
         if serializer.is_valid():
             instance = serializer.save()
             case_path = os.path.join('test_cases', instance.project, instance.version)
-            # 创建异步任务
+            # 创建任务
             result = self.run_method(start_test, test_task_id=instance.id, case_path=case_path)
+
             instance.uuid = result.id
             instance.status = 2
             instance.save()
