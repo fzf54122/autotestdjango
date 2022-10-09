@@ -1,7 +1,7 @@
 import time
 from unittest import TestCase
 import unittest
-from unittestreport import ddt, list_data, json_data, yaml_data
+from utils.core.test_core import ddt, list_data, json_data, yaml_data
 from utils.core.session import *
 from utils.auth import CipherFactory
 from utils.core.assertion import JsonPathExtractStrategy
@@ -16,7 +16,8 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 class TestWhiteList(TestCase):
     session = None
-    tag = ['test']
+    tags = ['test']
+    versions = ['2.1']
     host = ''
 
     @classmethod

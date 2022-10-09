@@ -17,7 +17,8 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 @ddt
 class TestConnectionManagement(TestCase):
     session = None
-    tag = ['test']
+    tags = ['test']
+    versions = ['2.1']
     host = ''
 
     @classmethod
