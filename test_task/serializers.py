@@ -12,4 +12,4 @@ class TestTaskSerializer(serializers.ModelSerializer):
 class TestTaskResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestTask
-        fields = ['id', 'status', 'host', 'project', 'version', 'result', 'created_time']
+        fields = ['id', 'status', 'host', 'project', 'version', 'created_time', 'tags', 'report']

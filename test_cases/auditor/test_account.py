@@ -6,12 +6,12 @@ from utils.auth import CipherFactory
 from utils.core.assertion import JsonPathExtractStrategy
 # from settings import host
 from utils.core.decorators import depends_on
-import inspect
 
 
 class TestAccount(TestCase):
     session = None
-    tag = ['test']
+    tags = ['test']
+    versions = ['3.4']
     host = ''
 
     @classmethod

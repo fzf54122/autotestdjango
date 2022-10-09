@@ -17,6 +17,8 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.00000+08:00"
 class TestRuntimeInspect(TestCase):
     session = None
     host = ''
+    tags = ['test']
+    versions = ['3.4']
 
     @classmethod
     def setUpClass(cls) -> None:

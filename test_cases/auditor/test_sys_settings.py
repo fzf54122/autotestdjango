@@ -17,6 +17,8 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.00000+08:00"
 class TestSystemSettings(TestCase):
     session = None
     host = ''
+    tags = ['test']
+    versions = ['3.4']
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -47,7 +49,6 @@ class TestSystemSettings(TestCase):
         payload = {
             "if_setting": nic_infos
         }
-        print(payload)
         response = self.session.request('PUT', url=f'/v2/setting/flow-if/', json=payload)
         self.assertEqual(response.status_code, 200)
 

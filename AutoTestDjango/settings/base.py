@@ -184,15 +184,15 @@ REDIS_DB = '0'
 
 CELERY_DEFAULT_QUEUE = 'celery'
 
-"""
-hook_server和默认队列的任务使用gevent启动
-"""
-CELERY_TASK_ROUTES = {
-    'hook_server.tasks.*': {
-        'queue': 'hook_server',
-        'routing_key': 'hook_server'
-    }
-}
+# """
+# hook_server和默认队列的任务使用gevent启动
+# """
+# CELERY_TASK_ROUTES = {
+#     'hook_server.tasks.*': {
+#         'queue': 'hook_server',
+#         'routing_key': 'hook_server'
+#     }
+# }
 
 LOGGING = {
     'version': 1,

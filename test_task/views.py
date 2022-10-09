@@ -24,10 +24,8 @@ class TestTaskView(APIView, CeleryTaskMixin):
         serializer = TestTaskSerializer(data=data)
         if serializer.is_valid():
             instance = serializer.save()
-            case_path = os.path.join('test_cases', instance.project, instance.version)
             # 创建任务
-            result = self.run_method(start_test, test_task_id=instance.id, case_path=case_path)
-
+            result = self.run_method(start_test, test_task_id=instance.id)
             instance.uuid = result.id
             instance.status = 2
             instance.save()
@@ -40,6 +38,25 @@ class TestTaskView(APIView, CeleryTaskMixin):
 
         _id = self.request.query_params.get('id')
         task = self.get_object(_id)
+        if task is Http404:
+            return Response({}, status=200)
+        else:
+            serializer = TestTaskResponseSerializer(task)
+            return Response(serializer.data, status=200)
+
+
+class ReportView(APIView, CeleryTaskMixin):
+
+    def get_object(self, pk):
+        try:
+            return TestTask.objects.get(pk=pk)
+        except TestTask.DoesNotExist:
+            return Http404
+
+    def get(self):
+        _id = self.request.query_params.get('id')
+        task = self.get_object(_id)
+        report_file = f'{task.uuid}.html'
         if task is Http404:
             return Response({}, status=200)
         else:
