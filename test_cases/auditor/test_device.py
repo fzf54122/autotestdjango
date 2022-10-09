@@ -15,6 +15,8 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.00000+08:00"
 class TestDevice(TestCase):
     session = None
     host = ''
+    tags = ['test']
+    versions = ['3.4']
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -76,6 +78,7 @@ class TestDevice(TestCase):
         response = self.session.request('GET',  url=f'/v2/device/learned/is_learning/')
         status = self.strategy.extract(response, '$.status')
         if len(status) == 0:
+            logging.error(f"detect status error, response: {response.json()}")
             raise ValueError('响应内容异常，未提取到status字段')
         return status[0]
 

@@ -1,14 +1,14 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
+from pydantic import BaseModel
 # import time
 # from abc import ABC, abstractmethod
 # from typing import List
 #
 # import uuid
-# from django.contrib.postgres.fields import ArrayField
+
 # from django.db import models
 # from django.db.models import IntegerField, CharField, BooleanField, JSONField, ForeignKey
-# from pydantic import BaseModel, validator
-# Create your models here.
 
 # Create your models here.
 
@@ -153,13 +153,26 @@ STATE_CHOICES = [
 ]
 
 
+class SummaryReport(BaseModel):
+    success: int
+    all: int
+    fail: int
+    skip: int
+    error: int
+    runtime: str
+    begin_time: str
+    pass_rate: float
+
+
 class TestTask(models.Model):
     host = models.CharField(max_length=50, verbose_name='被测主机')
     project = models.CharField(max_length=50, verbose_name='被测产品')
     version = models.CharField(max_length=50, verbose_name='产品版本')
+    tags = ArrayField(base_field=models.CharField(max_length=50, blank=True), verbose_name='用例标签', null=True)
     uuid = models.UUIDField(verbose_name='用于任务标识的uuid', null=True)
     status = models.IntegerField(choices=STATE_CHOICES, verbose_name='任务状态', default=1)
-    result = models.JSONField(max_length=10, verbose_name='任务结果', null=True)
+    report = models.JSONField(verbose_name='测试报告', null=True)
+    created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = '测试任务'

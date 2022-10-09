@@ -141,6 +141,7 @@ class BoleanSession(ISession):
 
 
 class AuditorSession(BoleanSession):
+
     """审计的session"""
     def login(self, user: User):
         password_cipher = CipherFactory.create_cipher('auditor/password')
