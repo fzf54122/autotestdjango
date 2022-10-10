@@ -144,6 +144,8 @@ Untitled*
 # debug file
 demo.py
 main.py
+temp_reports
+*demo.py
 
 # idea
 .idea
@@ -151,7 +153,6 @@ main.py
 # media file
 media/history.json
 media/reports/*.html
-temp_reports
 
 # migrations
 migrations

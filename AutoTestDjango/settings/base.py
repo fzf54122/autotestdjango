@@ -229,3 +229,5 @@ DATA_PATH = os.path.join(BASE_DIR, "utils/ui_core/data")
 # 浏览器设置
 BROWSER_TYPE = 1
 WAIT_TIME_OUT = 10
+# 接口测试设置
+API_TIME_OUT = 10

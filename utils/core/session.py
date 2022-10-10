@@ -10,6 +10,7 @@ from utils.exceptions import StatusCodeException
 from utils.log import logged
 from utils.auth import CipherFactory, ICipher
 from pydantic import BaseModel
+from AutoTestDjango.settings.base import API_TIME_OUT
 
 
 class User(BaseModel):
@@ -69,15 +70,12 @@ class ISession(Session, ABC):
         supported_methods = ('GET', 'POST', 'PUT', 'DELETE', 'PATCH')
         if method.upper() not in supported_methods:
             raise ValueError(f'method not supported, supported: {supported_methods}, given: {method}')
-        # json = self._convert_json(kwargs.pop('json')) if 'json' in kwargs else None
-        # print(json)
         url = self._fill_url(url)
         # 未登录且没有标记不需要登录时，直接抛出认证异常
         self.authorize()
 
         # 正式发送请求
-        # response = super().request(method=method.upper(), url=url, json=json, *args, **kwargs)
-        response = super().request(method=method.upper(), url=url, *args, **kwargs)
+        response = super().request(method=method.upper(), url=url, *args, **kwargs, timeout=API_TIME_OUT)
         # self._check_response(response)
         return response
 
@@ -180,6 +178,18 @@ class FirewallSession(BoleanSession):
         self.token = None
         if 'Authorization' in self.headers.keys():
             self.headers.pop('Authorization')
+
+
+class SessionFactory:
+    """session工厂"""
+    @staticmethod
+    def create_session(session_type: str) -> BoleanSession:
+        if session_type == 'auditor':
+            return AuditorSession()
+        elif session_type == 'firewall':
+            return FirewallSession()
+        else:
+            raise ValueError('session type not supported')
 
 # class RangeSession(BoleanSession):
 #     """靶场session"""

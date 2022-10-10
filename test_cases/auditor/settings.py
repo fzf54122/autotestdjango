@@ -39,3 +39,10 @@ supported_protocols = [
     "TCP",
     "UDP"
 ]
+
+TEST_USER = (
+    ('test666', 'Bl666666', 'Engineer'),
+    ('test666', 'Bl666666', 'Operator')
+)
+
+ADMIN_USER = ('admin', 'Admin@123')

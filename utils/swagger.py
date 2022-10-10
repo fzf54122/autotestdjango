@@ -76,8 +76,6 @@ class Swagger(BaseModel):
                 ...
 
 
-
-
 if __name__ == '__main__':
     # ref_regex = re.compile(r"^\#(\/\S+)+$")
     # info = {'title': "态势感知", 'description': "态势感知文档描述", 'version': "v2", 'param': ['1', '2']}

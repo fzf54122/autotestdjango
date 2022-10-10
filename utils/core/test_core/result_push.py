@@ -108,8 +108,8 @@ class WeiXin:
 
     def __init__(self, access_token=None, corp_id=None, corp_secret=None):
         """
-        :param corp_id: wechat corp_id
-        :param corp_secret:Applied credential key
+        param corp_id: wechat corp_id
+        param corp_secret:Applied credential key
         """
         self.corp_id = corp_id
         self.corp_secret = corp_secret

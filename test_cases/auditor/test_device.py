@@ -78,7 +78,6 @@ class TestDevice(TestCase):
         response = self.session.request('GET',  url=f'/v2/device/learned/is_learning/')
         status = self.strategy.extract(response, '$.status')
         if len(status) == 0:
-            logging.error(f"detect status error, response: {response.json()}")
             raise ValueError('响应内容异常，未提取到status字段')
         return status[0]
 
