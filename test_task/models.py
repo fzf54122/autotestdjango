@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 from pydantic import BaseModel
+
 # import time
 # from abc import ABC, abstractmethod
 # from typing import List
@@ -152,14 +153,6 @@ STATE_CHOICES = [
     (4, '失败')
 ]
 
-PROJECT_CHOICES = [
-    ('auditor', '审计'),
-    ('ids', '入侵检测'),
-    ('firewall', '防火墙'),
-    ('ump', '统一管理平台'),
-    ('range', '靶场')
-]
-
 
 class SummaryReport(BaseModel):
     success: int
@@ -174,7 +167,7 @@ class SummaryReport(BaseModel):
 
 class TestTask(models.Model):
     host = models.CharField(max_length=50, verbose_name='被测主机')
-    project = models.CharField(max_length=50, verbose_name='被测产品', choices=PROJECT_CHOICES)
+    project = models.CharField(max_length=50, verbose_name='被测产品')
     version = models.CharField(max_length=50, verbose_name='产品版本')
     tags = ArrayField(base_field=models.CharField(max_length=50, blank=True), verbose_name='用例标签', null=True)
     uuid = models.UUIDField(verbose_name='用于任务标识的uuid', null=True)
