@@ -1,16 +1,20 @@
 import logging
-from typing import Dict
+import os
+import shlex
+import subprocess
+from abc import ABC, abstractmethod
+from typing import Dict, Tuple
 from urllib.parse import urljoin
 
-from requests import Session, Response
 import requests
-from abc import ABC, abstractmethod
-from utils.log import get_logger
-from utils.exceptions import StatusCodeException
-from utils.log import logged
-from utils.auth import CipherFactory, ICipher
 from pydantic import BaseModel
+from requests import Session, Response
+
 from AutoTestDjango.settings.base import API_TIME_OUT
+from utils.auth import CipherFactory, ICipher
+from utils.exceptions import StatusCodeException
+from utils.log import get_logger
+from utils.log import logged
 
 
 class User(BaseModel):
@@ -73,9 +77,15 @@ class ISession(Session, ABC):
         url = self._fill_url(url)
         # 未登录且没有标记不需要登录时，直接抛出认证异常
         self.authorize()
-
+        headers = {
+            "Content-Type:" "application/json"
+        }
+        headers = {
+            "Content-Type": "application/json",
+        }
         # 正式发送请求
-        response = super().request(method=method.upper(), url=url, *args, **kwargs, timeout=API_TIME_OUT)
+        response = super().request(method=method.upper(), url=url, *args, **kwargs, headers=headers,
+                                   timeout=API_TIME_OUT)
         # self._check_response(response)
         return response
 
@@ -95,10 +105,62 @@ class ISession(Session, ABC):
         return self.request(method='PATCH', url=url, *args, **kwargs)
 
 
-class BoleanSession(ISession):
+class BoleanCmd:
+    def exec_shell_popen(self, cmd: str) -> str:
+        """执行Shell命令
+
+        Args:
+            param cmd (str): 命令
+
+        Returns:
+            str
+        """
+
+        pids = os.popen(cmd).read()
+
+        return pids.rstrip("\n")
+
+    def exec_shell(self, cmd: str, split: bool = False, shell: bool = False) -> Tuple[str, str]:
+        """运行CMD
+
+        Args:
+            param cmd (str): 命令
+            param split (bool): 是否分割命令，默认 ``False``
+            param shell (bool): shell，默认 ``False``
+
+        Returns:
+            str
+        """
+
+        p = subprocess.Popen(
+            shlex.split(cmd) if split else cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=shell
+        )
+
+        p.wait()
+
+        return p.stdout.read().decode().rstrip("\n"), p.stderr.read().decode().rstrip("\n")
+
+    def exec_shell_bool(self, cmd: str) -> bool:
+        """执行Shell命令"""
+
+        stdout, stderr = self.exec_shell(cmd, shell=True)
+        # print(stdout, stderr)
+
+        if stdout.isdigit():
+            return int(stdout) >= 1
+
+        return False
+
+
+class BoleanSession(ISession, BoleanCmd):
     """
     Web session， 使用header中的字段进行鉴权，authorize主要对header进行操作
     """
+
     def __init__(self):
         self._host: str = ''
         super().__init__(self._host)
@@ -139,8 +201,8 @@ class BoleanSession(ISession):
 
 
 class AuditorSession(BoleanSession):
-
     """审计的session"""
+
     def login(self, user: User):
         password_cipher = CipherFactory.create_cipher('auditor/password')
         data = {
@@ -182,6 +244,7 @@ class FirewallSession(BoleanSession):
 
 class SessionFactory:
     """session工厂"""
+
     @staticmethod
     def create_session(session_type: str) -> BoleanSession:
         if session_type == 'auditor':
@@ -190,6 +253,7 @@ class SessionFactory:
             return FirewallSession()
         else:
             raise ValueError('session type not supported')
+
 
 # class RangeSession(BoleanSession):
 #     """靶场session"""

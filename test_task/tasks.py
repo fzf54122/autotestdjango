@@ -21,26 +21,31 @@ def start_test(test_task_id: int):
                                     tags=instance.tags)
     report_path = os.path.join(BASE_DIR, 'media/reports')
     task_name = celery.current_task.request.id
-    # 2、创建一个用例运行程序
-    runner = TestRunner(
-        suite,
-        tester='自动化',
-        filename=f'{task_name}.html',
-        report_dir=report_path,
-        title='自动化测试',
-        desc='自动化测试',
-        templates=2,
-        host=instance.host
-    )
-    # 3、运行测试用例
-    try:
-        runner.run()
-        instance.status = 3
-        report = SummaryReport(**runner.test_result)
-        instance.report = report.json()
-        # test_task.result = runner.result.__dict__
-    except Exception as e:
-        logging.error(e.__repr__())
-        instance.status = 4
-    finally:
+    if suite:
+        # 2、创建一个用例运行程序
+        runner = TestRunner(
+            suite,
+            tester='自动化',
+            filename=f'{instance.project}__{task_name}.html',
+            report_dir=report_path,
+            title='自动化测试',
+            desc='自动化测试',
+            templates=2,
+            host=instance.host
+        )
+        # 3、运行测试用例
+        try:
+            runner.run()
+            instance.status = 3
+            result = SummaryReport(**runner.test_result)
+            instance.result = result.json()
+            # test_task.result = runner.result.__dict__
+        except Exception as e:
+            logging.error(e.__repr__())
+            instance.status = 4
+        finally:
+            instance.save()
+    else:
+        instance.status = 5
+        instance.result = 'detail not support'
         instance.save()

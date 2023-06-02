@@ -150,7 +150,8 @@ STATE_CHOICES = [
     (1, ' 未开始'),
     (2, '运行中'),
     (3, '成功'),
-    (4, '失败')
+    (4, '失败'),
+    (5, '未适配')
 ]
 
 
@@ -172,7 +173,7 @@ class TestTask(models.Model):
     tags = ArrayField(base_field=models.CharField(max_length=50, blank=True), verbose_name='用例标签', null=True)
     uuid = models.UUIDField(verbose_name='用于任务标识的uuid', null=True)
     status = models.IntegerField(choices=STATE_CHOICES, verbose_name='任务状态', default=1)
-    report = models.JSONField(verbose_name='测试报告', null=True)
+    result = models.JSONField(verbose_name='测试结果', null=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:

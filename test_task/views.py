@@ -9,7 +9,10 @@ from rest_framework.views import APIView
 from test_task.models import TestTask
 from test_task.serializers import TestTaskSerializer, TestTaskResponseSerializer
 from test_task.tasks import start_test
+from utils.core.test_core.loader import BoleanLoader
 from utils.core.view_mixin import CeleryTaskMixin
+
+Loader = BoleanLoader()
 
 
 # Create your views here.
@@ -17,15 +20,18 @@ class TestTaskView(APIView, CeleryTaskMixin):
 
     def get_object(self, pk):
         try:
-            return TestTask.objects.get(pk=pk)
+            return TestTask.objects.get(id=pk)
         except TestTask.DoesNotExist:
             return Http404
 
     request_body = openapi.Schema(type=openapi.TYPE_OBJECT,
                                   required=['host', 'project', 'version'], properties=
-                                  {'host': openapi.Schema(type=openapi.TYPE_STRING, description='被测IP'),
-                                   'project': openapi.Schema(type=openapi.TYPE_STRING, description='项目名称'),
-                                   'version': openapi.Schema(type=openapi.TYPE_STRING, description='版本号'),
+                                  {'host': openapi.Schema(type=openapi.TYPE_STRING, description='被测IP',
+                                                          default="10.30.6.165"),
+                                   'project': openapi.Schema(type=openapi.TYPE_STRING, description='项目名称',
+                                                             default="firewall/v3"),
+                                   'version': openapi.Schema(type=openapi.TYPE_STRING, description='版本号',
+                                                             default='3.2'),
                                    }
                                   )
 
@@ -47,7 +53,7 @@ class TestTaskView(APIView, CeleryTaskMixin):
             return Response(serializer.errors, status=401)
 
     query_param = openapi.Parameter(name='id', in_=openapi.IN_QUERY, description="查询id",
-                                    type=openapi.TYPE_STRING)
+                                    type=openapi.TYPE_STRING, default=1)
 
     @swagger_auto_schema(method='get', manual_parameters=[query_param])
     @action(methods=['get'], detail=False)
@@ -55,7 +61,7 @@ class TestTaskView(APIView, CeleryTaskMixin):
         _id = self.request.query_params.get('id')
         task = self.get_object(_id)
         if task is Http404:
-            return Response({}, status=200)
+            return Response({}, status=404)
         else:
             serializer = TestTaskResponseSerializer(task)
             return Response(serializer.data, status=200)
